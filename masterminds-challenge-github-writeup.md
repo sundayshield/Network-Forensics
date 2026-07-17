@@ -40,7 +40,7 @@
 | PCAP 2 | Machine 2 — Finance department workstation |
 | PCAP 3 | Machine 3 — Finance department workstation |
 
-Each PCAP captured the full network traffic from one compromised endpoint — allowing independent investigation of each machine's infection chain before correlating findings across all three.
+Each PCAP captured the full network traffic from one compromised endpoint, allowing independent investigation of each machine's infection chain before correlating findings across all three.
 
 ---
 
@@ -48,7 +48,7 @@ Each PCAP captured the full network traffic from one compromised endpoint — al
 
 **Tool:** Brim (Zui)
 
-Each PCAP was loaded individually and investigated in sequence — starting from Machine 1 and progressing through all three. The anchor for each investigation was the **victim IP address**, used as the primary filter to isolate traffic specific to that machine before expanding the analysis.
+Each PCAP was loaded individually and investigated in sequence starting from Machine 1 and progressing through all three. The anchor for each investigation was the **victim IP address**, used as the primary filter to isolate traffic specific to that machine before expanding the analysis.
 
 Core investigation sequence per machine:
 1. Identify victim IP from HTTP traffic
@@ -89,12 +89,12 @@ _path=="http" | cut id.orig_h, id.resp_h, id.resp_p, method, host, uri, status_c
 ```
 
 **Finding 1 — Reconnaissance with failed connections:**
-The victim IP made connections to 2 suspicious domains that returned **HTTP 404** responses — indicating the attacker's infrastructure may have been probing for available resources or the C2 endpoints were temporarily unavailable.
+The victim IP made connections to 2 suspicious domains that returned **HTTP 404** responses indicating the attacker's infrastructure may have been probing for available resources or the C2 endpoints were temporarily unavailable.
 
 > **Analyst note:** Repeated 404 responses from the same external IP before a successful connection is a behavioral pattern worth flagging. It can indicate C2 beacon attempts cycling through dead endpoints before finding an active one.
 
 **Finding 2 — Successful payload delivery:**
-The victim made a successful HTTP connection to `199.59.242.153` and received a response with a body length of **1309 bytes** — indicating content was delivered to the machine.
+The victim made a successful HTTP connection to `199.59.242.153` and received a response with a body length of **1309 bytes** indicating content was delivered to the machine.
 
 **Finding 3 — File download:**
 
@@ -112,7 +112,7 @@ The victim made a successful HTTP connection to `199.59.242.153` and received a 
 _path=="dns" | count() by query | sort -r
 ```
 
-**Finding:** A unique DNS request was made to `cab[.]myfkn[.]com` with a query count of **7** — repeated DNS lookups to a single suspicious domain is consistent with C2 beaconing behavior.
+**Finding:** A unique DNS request was made to `cab[.]myfkn[.]com` with a query count of **7**, repeated DNS lookups to a single suspicious domain is consistent with C2 beaconing behavior.
 
 ### Machine 1 — Summary
 
@@ -185,9 +185,9 @@ Three C2 domains were identified from which additional binaries were downloaded:
 | Total DNS connections | 986 |
 | Worm family identified | **Phorphiex** |
 
-> **Analyst note:** A spoofed macOS Firefox user-agent on a Windows Finance machine is immediately suspicious — the user-agent string does not match the expected endpoint profile. Attackers use spoofed user-agents to blend malicious traffic with legitimate browser activity and evade basic user-agent filtering.
+> **Analyst note:** A spoofed macOS Firefox user-agent on a Windows Finance machine is immediately suspicious, the user-agent string does not match the expected endpoint profile. Attackers use spoofed user-agents to blend malicious traffic with legitimate browser activity and evade basic user-agent filtering.
 
-> **Phorphiex** (also known as Trik) is a worm known for distributing other malware families — including Emotet and ransomware — via spam campaigns and USB propagation. Its presence alongside Emotet on a Finance department network is consistent with a multi-stage infection chain.
+> **Phorphiex** (also known as Trik) is a worm known for distributing other malware families, including Emotet and ransomware via spam campaigns and USB propagation. Its presence alongside Emotet on a Finance department network is consistent with a multi-stage infection chain.
 
 ### Machine 2 — Summary
 
@@ -253,13 +253,13 @@ Findings from the third PCAP were correlated with infrastructure identified acro
 
 **Challenge:** Understanding which traffic patterns were significant versus routine background noise in a large PCAP.
 
-**Resolution:** Applied the core principle built across previous investigations — lead with a known anchor (victim IP), use targeted filters to isolate relevant traffic, and let repeated patterns (repeated 404s before a 200, repeated DNS queries to the same domain, high DNS connection counts) surface the attacker activity. Prior experience with Brim from Boogeyman 1 made the filter syntax second nature, allowing focus to shift from tool mechanics to investigative thinking.
+**Resolution:** Applied the core principle built across previous investigations lead with a known anchor (victim IP), use targeted filters to isolate relevant traffic, and let repeated patterns (repeated 404s before a 200, repeated DNS queries to the same domain, high DNS connection counts) surface the attacker activity. Prior experience with Brim from Boogeyman 1 made the filter syntax second nature, allowing focus to shift from tool mechanics to investigative thinking.
 
 ---
 
 ## Key Learnings
 
-1. **Repeated 404s before a 200 from the same external IP is a behavioral red flag.** It suggests C2 beacon attempts cycling through endpoints until one responds — a pattern worth alerting on in a production SIEM.
+1. **Repeated 404s before a 200 from the same external IP is a behavioral red flag.** It suggests C2 beacon attempts cycling through endpoints until one responds, a pattern worth alerting on in a production SIEM.
 
 2. **Every alert deserves attention — even when traffic looks routine.** The Suricata Network Trojan alert on Machine 2 was the clearest confirmation signal in that investigation. IDS alerts exist to be investigated, not ignored.
 
@@ -267,15 +267,15 @@ Findings from the third PCAP were correlated with infrastructure identified acro
 
 4. **Domain naming patterns reveal infrastructure relationships.** `efhoahegue[.]ru`, `afhoahegue[.]ru`, and `xfhoahegue[.]ru` — three domains with nearly identical naming, registered on the same infrastructure. Attacker-generated domain names often follow patterns that reveal they belong to the same campaign.
 
-5. **Tool familiarity compounds across investigations.** Having used Brim in Boogeyman 1, this challenge required no time spent learning the tool — only applying it. Every investigation builds the platform for the next one to move faster and go deeper.
+5. **Tool familiarity compounds across investigations.** Having used Brim in Boogeyman 1, this challenge required no time spent learning the tool, only applying it. Every investigation builds the platform for the next one to move faster and go deeper.
 
 ---
 
 ## Real-World Application
 
-Multi-machine compromises involving Emotet, Redline Stealer, and Phorphiex represent a real and actively documented threat pattern. Emotet in particular has been observed as a loader that delivers secondary payloads — including stealers and ransomware — to compromised machines in finance and healthcare sectors.
+Multi-machine compromises involving Emotet, Redline Stealer, and Phorphiex represent a real and actively documented threat pattern. Emotet in particular has been observed as a loader that delivers secondary payloads including stealers and ransomware to compromised machines in finance and healthcare sectors.
 
-The analysis workflow used here — isolating each machine's PCAP, anchoring to victim IP, filtering HTTP and DNS traffic, correlating IDS alerts, and confirming malware identity via threat intelligence platforms — mirrors exactly how a SOC analyst or network forensics specialist would approach a multi-endpoint compromise investigation.
+The analysis workflow used here, isolating each machine's PCAP, anchoring to victim IP, filtering HTTP and DNS traffic, correlating IDS alerts, and confirming malware identity via threat intelligence platforms mirrors exactly how a SOC analyst or network forensics specialist would approach a multi-endpoint compromise investigation.
 
 The ability to work across three PCAPs simultaneously, correlate C2 infrastructure, and identify three distinct malware families from network traffic alone demonstrates practical, production-ready network forensics skills.
 
