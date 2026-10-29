@@ -126,14 +126,4 @@ Both tools complement each other perfectly when solid filtering skills are appli
 **This write-up serves as practical proof of hands-on network forensics and blue-team analysis capabilities.**
 ```
 
----
-
-### How to Import into GitHub
-
-1. Go to your repository (or create a new one, e.g. `cybersecurity-portfolio` or `TryHackMe-Carnage`).
-2. Click **Add file** → **Create new file**.
-3. Name it exactly: `README.md`
-4. Copy the entire content from the file above and paste it.
-5. Commit the changes.
-
-Alternatively, download the file below and upload it directly.
+-
