@@ -121,6 +121,3 @@ The main difficulty was selecting the correct Zeek log fields and filters. Under
 **This write-up demonstrates practical Zeek-based network analysis and threat hunting skills relevant to SOC and Blue Team roles.**
 ```
 
----
-
-### Download your GitHub file:
